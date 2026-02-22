@@ -2,106 +2,123 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>IPTV 专业直播系统</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SMTV 手机直播</title>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
 <style>
-body{margin:0;background:#000;font-family:system-ui}
-header{color:#fff;text-align:center;padding:10px;font-size:16px;background:#111}
-video{width:100%;height:calc(100vh - 110px);background:#000}
-select{width:100%;padding:10px;font-size:16px;border:none}
-.status{color:#0f0;text-align:center;font-size:13px;padding:5px}
+body {
+  margin: 0;
+  background: #000;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial;
+}
+#player {
+  width: 100vw;
+  height: 230px;
+  background: #000;
+}
+.channel-list {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 8px;
+}
+.channel {
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.channel.active {
+  background: #e50914;
+}
+.status {
+  padding: 6px 10px;
+  font-size: 12px;
+  color: #aaa;
+}
 </style>
 </head>
 
 <body>
 
-<header>📺 IPTV 专业网页版直播系统</header>
+<video id="player" controls autoplay playsinline webkit-playsinline></video>
 
-<select id="channel"></select>
+<div class="status" id="status">准备播放...</div>
 
-<div class="status" id="status">初始化播放器...</div>
-
-<video id="video" controls autoplay muted playsinline></video>
+<div class="channel-list" id="list"></div>
 
 <script>
-const channels = {
-  "MAX": [
-    "http://wahoo.lilyessence.com/live/max_1080p_200K/index.m3u8",
-    "http://go.fastl.io/live/max_1080p_200K/index.m3u8",
-    "http://yng.beauty.is/live/max_1080p_200K/index.m3u8",
-    "http://sky2.coopfire.com/live/max_1080p_200K/index.m3u8",
-    "http://mobile2.ecosys.gr/live/max_1080p_200K/index.m3u8",
-    "http://fly2.skyidea.com/live/max_1080p_200K/index.m3u8",
-    "http://db2.quicklyita.com/live/max_1080p_200K/index.m3u8",
-    "http://eye.blinklab.com/live/max_1080p_200K/index.m3u8",
-    "http://run.lightn.org/live/max_1080p_200K/index.m3u8",
-    "http://xman.magento-spain.com/live/max_1080p_200K/index.m3u8",
-    "http://star.galaxysoft.ro/live/max_1080p_200K/index.m3u8",
-    "http://health2.veggiefit.ro/live/max_1080p_200K/index.m3u8",
-    "http://center.truecircle.com/live/max_1080p_200K/index.m3u8",
-    "http://think2.adevar.net/live/max_1080p_200K/index.m3u8",
-    "http://lock2.goldenkey.sg/live/max_1080p_200K/index.m3u8",
-    "http://my.beauty.is/live/max_1080p_200K/index.m3u8",
-    "http://milkyway2.galaxysoft.ro/live/max_1080p_200K/index.m3u8",
-    "http://360.flightgear.ru/live/max_1080p_200K/index.m3u8"
-  ],
+const channels = [
+  ["MAX","http://wahoo.lilyessence.com/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://go.fastl.io/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://yng.beauty.is/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://sky2.coopfire.com/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://mobile2.ecosys.gr/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://fly2.skyidea.com/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://db2.quicklyita.com/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://eye.blinklab.com/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://run.lightn.org/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://xman.magento-spain.com/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://star.galaxysoft.ro/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://health2.veggiefit.ro/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://center.truecircle.com/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://think2.adevar.net/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://lock2.goldenkey.sg/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://my.beauty.is/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://milkyway2.galaxysoft.ro/live/max_1080p_200K/index.m3u8"],
+  ["MAX","http://360.flightgear.ru/live/max_1080p_200K/index.m3u8"],
 
-  "Live": [
-    "http://go.fastl.io:61230/live/ytdl_720p_2500K/index.m3u8",
-    "http://wahoo.lilyessence.com:61235/live/ytdl_720p_2500K/index.m3u8",
-    "http://yng.beauty.is:61235/live/ytdl_720p_2500K/index.m3u8",
-    "http://xman.magento-spain.com:64915/live/ytdl_720p_2500K/index.m3u8",
-    "http://mobile2.ecosys.gr:64913/live/ytdl_720p_2500K/index.m3u8",
-    "http://star.galaxysoft.ro:60015/live/ytdl_720p_2500K/index.m3u8",
-    "http://health2.veggiefit.ro:61940/live/ytdl_720p_2500K/index.m3u8",
-    "http://fly2.skyidea.com:61233/live/ytdl_720p_2500K/index.m3u8",
-    "http://center.truecircle.com:61938/live/ytdl_720p_2500K/index.m3u8",
-    "http://think2.adevar.net:60008/live/ytdl_720p_2500K/index.m3u8",
-    "http://eye.blinklab.com:60011/live/ytdl_720p_2500K/index.m3u8",
-    "http://lock2.goldenkey.sg:62634/live/ytdl_720p_2500K/index.m3u8"
-  ]
-};
+  ["LIVE","http://go.fastl.io:61230/live/ytdl_720p_2500K/index.m3u8"],
+  ["LIVE","http://wahoo.lilyessence.com:61235/live/ytdl_720p_2500K/index.m3u8"],
+  ["LIVE","http://yng.beauty.is:61235/live/ytdl_720p_2500K/index.m3u8"],
+  ["LIVE","http://xman.magento-spain.com:64915/live/ytdl_720p_2500K/index.m3u8"],
+  ["LIVE","http://mobile2.ecosys.gr:64913/live/ytdl_720p_2500K/index.m3u8"],
+  ["LIVE","http://star.galaxysoft.ro:60015/live/ytdl_720p_2500K/index.m3u8"],
+  ["LIVE","http://health2.veggiefit.ro:61940/live/ytdl_720p_2500K/index.m3u8"],
+  ["LIVE","http://fly2.skyidea.com:61233/live/ytdl_720p_2500K/index.m3u8"],
+  ["LIVE","http://center.truecircle.com:61938/live/ytdl_720p_2500K/index.m3u8"],
+  ["LIVE","http://think2.adevar.net:60008/live/ytdl_720p_2500K/index.m3u8"],
+  ["LIVE","http://eye.blinklab.com:60011/live/ytdl_720p_2500K/index.m3u8"],
+  ["LIVE","http://lock2.goldenkey.sg:62634/live/ytdl_720p_2500K/index.m3u8"]
+];
 
-const video = document.getElementById("video");
-const select = document.getElementById("channel");
+let hls, current = 0;
+const video = document.getElementById("player");
+const list = document.getElementById("list");
 const status = document.getElementById("status");
-let hls;
-let idx = 0;
-let urls = [];
 
-for (let c in channels){
-  let opt = document.createElement("option");
-  opt.value = c;
-  opt.text = c;
-  select.appendChild(opt);
+channels.forEach((c,i)=>{
+  const div = document.createElement("div");
+  div.className="channel";
+  div.innerText = c[0] + " - " + (i+1);
+  div.onclick = ()=>play(i);
+  list.appendChild(div);
+});
+
+function play(i){
+  current = i;
+  status.innerText="正在加载："+channels[i][1];
+  [...document.getElementsByClassName("channel")].forEach(el=>el.classList.remove("active"));
+  document.getElementsByClassName("channel")[i].classList.add("active");
+
+  if(hls){ hls.destroy(); }
+
+  if(Hls.isSupported()){
+    hls = new Hls({lowLatencyMode:true});
+    hls.loadSource(channels[i][1]);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play());
+  }else{
+    video.src = channels[i][1];
+    video.play();
+  }
 }
 
-function play(url){
-  if(hls) hls.destroy();
-  hls = new Hls({ maxBufferLength:30 });
-  hls.loadSource(url);
-  hls.attachMedia(video);
-  status.innerText = "播放中：" + url;
-  hls.on(Hls.Events.ERROR, function(){
-    idx++;
-    if(idx < urls.length){
-      play(urls[idx]);
-    } else {
-      status.innerText = "❌ 全部线路无法连接";
-    }
-  });
-}
-
-function loadChannel(name){
-  urls = channels[name];
-  idx = 0;
-  play(urls[0]);
-}
-
-select.onchange = () => loadChannel(select.value);
-
-loadChannel("MAX");
+play(0);
 </script>
 
 </body>
