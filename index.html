@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMTV 手机直播</title>
+<style>
+body{margin:0;background:#000;font-family:-apple-system,BlinkMacSystemFont;}
+header{color:#fff;text-align:center;padding:10px;background:#111;}
+select{width:96%;margin:8px 2%;padding:12px;font-size:16px;border-radius:8px;}
+video{width:100%;height:auto;background:#000;}
+.tip{color:#0f0;text-align:center;font-size:14px;padding:6px;}
+</style>
+</head>
+<body>
+
+<header>📺 SMTV 手机直播（稳定版）</header>
+
+<select id="line"></select>
+
+<video id="video" controls autoplay playsinline webkit-playsinline></video>
+
+<div class="tip" id="tip">请选择线路</div>
+
+<script>
+const proxy = "https://shy-tooth-6261.liulin2205.workers.dev/?url=";
+
+const sources = [
+["MAX 极速1","http://wahoo.lilyessence.com/live/max_1080p_200K/index.m3u8"],
+["MAX 极速2","http://go.fastl.io/live/max_1080p_200K/index.m3u8"],
+["MAX 极速3","http://yng.beauty.is/live/max_1080p_200K/index.m3u8"],
+["MAX 极速4","http://sky2.coopfire.com/live/max_1080p_200K/index.m3u8"],
+["Live 主线路1","http://go.fastl.io:61230/live/ytdl_720p_2500K/index.m3u8"],
+["Live 主线路2","http://wahoo.lilyessence.com:61235/live/ytdl_720p_2500K/index.m3u8"],
+["Live 主线路3","http://yng.beauty.is:61235/live/ytdl_720p_2500K/index.m3u8"]
+];
+
+const video = document.getElementById("video");
+const select = document.getElementById("line");
+const tip = document.getElementById("tip");
+
+sources.forEach((s,i)=>{
+  let opt=document.createElement("option");
+  opt.value=s[1];
+  opt.innerText=s[0];
+  select.appendChild(opt);
+});
+
+function play(url){
+  video.src = proxy + encodeURIComponent(url);
+  video.load();
+  video.play();
+  tip.innerText="播放中";
+}
+
+select.onchange=()=>play(select.value);
+
+// 自动播放第一个
+play(sources[0][1]);
+</script>
+
+</body>
+</html>
