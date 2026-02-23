@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SMTV 手机直播</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<style>
+body{margin:0;background:#000;font-family:-apple-system,BlinkMacSystemFont;}
+header{color:#fff;text-align:center;padding:10px;background:#111;}
+select{width:96%;margin:8px 2%;padding:10px;font-size:16px;border-radius:6px;}
+video{width:100%;height:auto;background:#000;}
+.status{color:#0f0;text-align:center;font-size:14px;}
+</style>
+</head>
+<body>
+
+<header>📺 SMTV 手机直播</header>
+
+<select id="line"></select>
+
+<video id="video" controls playsinline webkit-playsinline autoplay></video>
+
+<div class="status" id="status">线路加载中...</div>
+
+<script>
+const proxy = "https://shy-tooth-6261.liulin2205.workers.dev/?url=";
+
+const sources = [
+"MAX,http://wahoo.lilyessence.com/live/max_1080p_200K/index.m3u8",
+"MAX,http://go.fastl.io/live/max_1080p_200K/index.m3u8",
+"MAX,http://yng.beauty.is/live/max_1080p_200K/index.m3u8",
+"MAX,http://sky2.coopfire.com/live/max_1080p_200K/index.m3u8",
+"MAX,http://mobile2.ecosys.gr/live/max_1080p_200K/index.m3u8",
+"Live,http://go.fastl.io:61230/live/ytdl_720p_2500K/index.m3u8",
+"Live,http://wahoo.lilyessence.com:61235/live/ytdl_720p_2500K/index.m3u8",
+"Live,http://yng.beauty.is:61235/live/ytdl_720p_2500K/index.m3u8",
+"Live,http://xman.magento-spain.com:64915/live/ytdl_720p_2500K/index.m3u8",
+"Live,http://mobile2.ecosys.gr:64913/live/ytdl_720p_2500K/index.m3u8"
+];
+
+const video = document.getElementById("video");
+const select = document.getElementById("line");
+const status = document.getElementById("status");
+
+sources.forEach((item,i)=>{
+  let [name,url]=item.split(",");
+  let opt=document.createElement("option");
+  opt.value=url;
+  opt.text=`${name} - 线路${i+1}`;
+  select.appendChild(opt);
+});
+
+function play(url){
+  status.innerText="加载中...";
+  const playUrl = proxy + encodeURIComponent(url);
+  if(Hls.isSupported()){
+    if(window.hls) window.hls.destroy();
+    const hls = new Hls({lowLatencyMode:true});
+    window.hls = hls;
+    hls.loadSource(playUrl);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED,()=>{
+      video.play();
+      status.innerText="播放中";
+    });
+    hls.on(Hls.Events.ERROR,()=>{
+      status.innerText="该线路异常，切换中...";
+      next();
+    });
+  }else{
+    video.src=playUrl;
+    video.play();
+  }
+}
+
+let idx=0;
+function next(){
+  idx++;
+  if(idx>=sources.length) idx=0;
+  select.selectedIndex=idx;
+  play(select.value);
+}
+
+select.onchange=()=>play(select.value);
+
+play(select.value);
+</script>
+
+</body>
+</html>
